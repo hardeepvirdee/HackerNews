@@ -2,6 +2,9 @@
 
 namespace HackerNews.Model
 {
+    /// <summary>
+    /// The public facing format of the news item
+    /// </summary>
     public class NewsItem
     {
         public string Title { get; set; } 

@@ -17,8 +17,7 @@ namespace HackerNews.Model
                 .ForMember(dest => dest.PostedBy, opt => opt.MapFrom(source => source.By))
                 .ForMember(dest => dest.Time, opt => opt.MapFrom(source => DateTime.UnixEpoch.AddSeconds(source.Time)))
                 .ForMember(dest => dest.Score, opt => opt.MapFrom(source => source.Score))
-                .ForMember(dest => dest.CommentCount, opt => opt.MapFrom(source => source.Descendants))
-                .ReverseMap();
+                .ForMember(dest => dest.CommentCount, opt => opt.MapFrom(source => source.Descendants));
         }
     }
 }

@@ -7,7 +7,7 @@ namespace HackerNews.API.Controllers
     [Route("[controller]")]
     public class HackerNewsController : ControllerBase
     {
-        [HttpGet(Name = "GetHackerNews")]
+        [HttpGet(Name = "Get")]
         public async Task<IEnumerable<NewsItem>> Get(int count = 200)
         {
             HackerNewsService service = new();

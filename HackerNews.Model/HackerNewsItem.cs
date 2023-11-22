@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace HackerNews.Model
 {
+    /// <summary>
+    /// Represents the Hacker News source news item
+    /// </summary>
     public class HackerNewsItem
     {
         public int Id { get; set; }

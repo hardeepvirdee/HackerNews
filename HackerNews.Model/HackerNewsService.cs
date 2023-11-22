@@ -15,6 +15,7 @@ namespace HackerNews.Model
         private static readonly Mapper _mapper;
         private static readonly HttpClient _httpClient;
         private static readonly MemoryCache _memoryCache = new(new MemoryCacheOptions());
+        private static readonly HashSet<int> _deletedStories = new();
         private static TimeSpan _timeOut => TimeSpan.FromMinutes(1);
 
         static HackerNewsService()  
@@ -31,10 +32,8 @@ namespace HackerNews.Model
 
         public async Task<IEnumerable<NewsItem>> GetBestStories(int count = 200)
         {
-            if (count > 200)
-            {
-                count = 200;
-            }
+            if (count < 0) count = 0;
+            if (count > 200) count = 200;
 
             int[]? storyIds = await _memoryCache.GetOrCreateAsync("bestStories", entry =>
             {
@@ -46,18 +45,26 @@ namespace HackerNews.Model
             int counter = 0;
             foreach (int storyId in storyIds)
             {
-                HackerNewsItem? hackerNewsItem = await _memoryCache.GetOrCreateAsync(storyId, entry =>
-                {
-                    entry.AbsoluteExpirationRelativeToNow = _timeOut;
-                    return GetStoryById(storyId);
-                });
-
-                if (hackerNewsItem.Deleted == "true" || hackerNewsItem.Dead == "true")
+                if (_deletedStories.Contains(storyId))
                 {
                     continue;
                 }
 
-                newsItems.Add(_mapper.Map<NewsItem>(hackerNewsItem));
+                if (!_memoryCache.TryGetValue(storyId, out NewsItem newsItem))
+                {
+                    HackerNewsItem hackerNewsItem = await GetStoryById(storyId);
+                    if (hackerNewsItem.Deleted == "true" || hackerNewsItem.Dead == "true")
+                    {
+                        _deletedStories.Add(storyId);
+                        continue;
+                    }
+
+                    newsItem = _mapper.Map<NewsItem>(hackerNewsItem);
+
+                    _memoryCache.Set(storyId, newsItem, _timeOut);
+                }
+
+                newsItems.Add(newsItem);
                 counter++;
                 if (counter >= count)
                 {
