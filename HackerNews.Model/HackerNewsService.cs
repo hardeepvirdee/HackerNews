@@ -42,8 +42,12 @@ namespace HackerNews.Model
             });
 
             List<NewsItem> newsItems = new();
+            if (count == 0)
+            {
+                return newsItems;
+            }
             int counter = 0;
-            foreach (int storyId in storyIds)
+            foreach (int storyId in storyIds)   
             {
                 if (_deletedStories.Contains(storyId))
                 {
